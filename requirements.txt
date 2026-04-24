@@ -1,0 +1,4 @@
+fastapi[standard]
+asyncpg
+python-jose[cryptography]
+passlib[bcrypt]
