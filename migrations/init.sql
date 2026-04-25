@@ -31,7 +31,7 @@ CREATE TABLE transactions (
     account_id INT NOT NULL,
     category_id INT NOT NULL,
     type transaction_type NOT NULL,
-    amount DECIMAL(12,2) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL CHECK (amount > 0),
     transaction_date DATE NOT NULL,
     note TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
