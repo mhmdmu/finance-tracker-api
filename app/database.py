@@ -1,18 +1,12 @@
-from os import getenv
-
 from asyncpg import create_pool
-from dotenv import load_dotenv
-
-load_dotenv()
-
-DATABASE_URL = getenv("DATABASE_URL")
+from core.config import settings
 
 pool = None
 
 
 async def connect() -> None:
     global pool
-    pool = await create_pool(DATABASE_URL, min_size=1, max_size=5)
+    pool = await create_pool(settings.DATABASE_URL, min_size=1, max_size=5)
 
 
 async def disconnect() -> None:
