@@ -1,5 +1,6 @@
 from asyncpg import create_pool
-from core.config import settings
+
+from app.core.config import settings
 
 pool = None
 

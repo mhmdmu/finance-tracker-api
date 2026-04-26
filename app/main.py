@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
 
-import database as db
 from fastapi import FastAPI
+
+import app.database as db
 
 
 @asynccontextmanager

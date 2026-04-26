@@ -1,4 +1,4 @@
-from database import pool
+from app.database import pool
 
 
 async def get_user_by_username(username: str):
