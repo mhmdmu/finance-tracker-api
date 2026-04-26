@@ -6,13 +6,12 @@ from app.repositories import user as user_repo
 
 async def login(username: str, password: str):
     user = await user_repo.get_user_by_username(username)
-    auth_failed_exception = ValueError("Authentication failed")
 
     if user is None:
-        raise auth_failed_exception
+        raise ValueError("User not found")
 
     if not security.verify_password(password, user["password"]):
-        raise auth_failed_exception
+        raise ValueError("Invalid password")
 
     return security.create_access_token(user["id"])
 
