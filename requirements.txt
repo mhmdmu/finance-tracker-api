@@ -1,3 +1,5 @@
 fastapi[standard]
 asyncpg
 python-jose[cryptography]
+pytest
+pytest-asyncio
