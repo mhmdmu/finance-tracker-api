@@ -1,23 +1,18 @@
-from app.database import pool
-
-
-async def get_user_by_username(username: str):
+async def get_user_by_username(username: str, conn):
     query = """
     SELECT *
     FROM users
     WHERE username = $1
     """
 
-    async with pool.acquire() as conn:
-        return await conn.fetchrow(query, username)
+    return await conn.fetchrow(query, username)
 
 
-async def create_user(username: str, password: str):
+async def create_user(username: str, password: str, conn):
     query = """
     INSERT INTO users(username, password)
     VALUES($1, $2)
     RETURNING id, username
     """
 
-    async with pool.acquire() as conn:
-        return await conn.fetchrow(query, username, password)
+    return await conn.fetchrow(query, username, password)

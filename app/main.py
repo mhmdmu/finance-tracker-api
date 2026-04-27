@@ -6,12 +6,12 @@ import app.database as db
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     # On startup
-    await db.connect()
+    app.state.pool = await db.connect()
     yield
     # On shutdown
-    await db.disconnect()
+    await db.disconnect(app.state.pool)
 
 
 app = FastAPI(lifespan=lifespan)

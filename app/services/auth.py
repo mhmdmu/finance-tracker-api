@@ -4,8 +4,8 @@ from app.core import security
 from app.repositories import user as user_repo
 
 
-async def login(username: str, password: str):
-    user = await user_repo.get_user_by_username(username)
+async def login(username: str, password: str, conn):
+    user = await user_repo.get_user_by_username(username, conn)
 
     if user is None:
         raise ValueError("User not found")
@@ -16,8 +16,12 @@ async def login(username: str, password: str):
     return security.create_access_token(user["id"])
 
 
-async def register(username: str, password: str):
+async def register(username: str, password: str, conn):
     try:
-        return await user_repo.create_user(username, security.hash_password(password))
+        return await user_repo.create_user(
+            username,
+            security.hash_password(password),
+            conn,
+        )
     except UniqueViolationError:
         raise ValueError("Username already exists")
