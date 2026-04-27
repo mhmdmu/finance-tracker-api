@@ -18,10 +18,12 @@ async def login(username: str, password: str, conn):
 
 async def register(username: str, password: str, conn):
     try:
-        return await user_repo.create_user(
-            username,
-            security.hash_password(password),
-            conn,
+        return dict(
+            await user_repo.create_user(
+                username,
+                security.hash_password(password),
+                conn,
+            )
         )
     except UniqueViolationError:
         raise ValueError("Username already exists")
