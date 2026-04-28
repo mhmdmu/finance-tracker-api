@@ -1,17 +1,15 @@
 from asyncpg.exceptions import UniqueViolationError
 
 from app.core import security
+from app.exceptions import AuthenticationFailed, DuplicateUsername
 from app.repositories import user as user_repo
 
 
 async def login(username: str, password: str, conn):
     user = await user_repo.get_user_by_username(username, conn)
 
-    if user is None:
-        raise ValueError("User not found")
-
-    if not security.verify_password(password, user["password"]):
-        raise ValueError("Invalid password")
+    if user is None or not security.verify_password(password, user["password"]):
+        raise AuthenticationFailed()
 
     return security.create_access_token(user["id"])
 
@@ -26,4 +24,4 @@ async def register(username: str, password: str, conn):
             )
         )
     except UniqueViolationError:
-        raise ValueError("Username already exists")
+        raise DuplicateUsername(username)
