@@ -1,8 +1,8 @@
 from asyncpg.exceptions import UniqueViolationError
 
+from app.auth import user_repo
 from app.core import security
-from app.exceptions import AuthenticationFailed, DuplicateUsername
-from app.repositories import user as user_repo
+from app.core.exceptions import AuthenticationFailed, DuplicateUsername
 
 
 async def login(username: str, password: str, conn):
@@ -24,4 +24,4 @@ async def register(username: str, password: str, conn):
             )
         )
     except UniqueViolationError:
-        raise DuplicateUsername(username)
+        raise DuplicateUsername()

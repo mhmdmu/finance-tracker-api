@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.database import get_conn
-from app.schemas.user import UserRegister, UserResponse
-from app.services import auth
+from app.auth import auth_service
+from app.auth.user_schema import UserRegister, UserResponse
+from app.core.database import get_conn
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -14,11 +14,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def login(
     request: Annotated[OAuth2PasswordRequestForm, Depends()], conn=Depends(get_conn)
 ):
-    token = await auth.login(request.username, request.password, conn)
+    token = await auth_service.login(request.username, request.password, conn)
 
     return {"access_token": token, "token_type": "bearer"}
 
 
 @router.post("/register", response_model=UserResponse)
 async def register(request: UserRegister, conn=Depends(get_conn)):
-    return await auth.register(request.username, request.password, conn)
+    return await auth_service.register(request.username, request.password, conn)

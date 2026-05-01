@@ -4,5 +4,5 @@ class AuthenticationFailed(Exception):
 
 
 class DuplicateUsername(Exception):
-    def __init__(self, username):
-        super().__init__(f"Invalid username - {username} is already taken.")
+    def __init__(self):
+        super().__init__("Registeration failed")

@@ -3,9 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-import app.database as db
-from app.exceptions import AuthenticationFailed, DuplicateUsername
-from app.routers import auth
+import app.core.database as db
+from app.auth import auth_router
+from app.core.exceptions import AuthenticationFailed, DuplicateUsername
+
 
 
 @asynccontextmanager
@@ -21,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 
 # Routers
 routers_prefix = "/api/v1"
-app.include_router(auth.router, prefix=routers_prefix)
+app.include_router(auth_router.router, prefix=routers_prefix)
 
 
 # Exception handling

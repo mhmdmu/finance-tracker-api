@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.user import UserRegister
+from app.auth.user_schema import UserRegister
 
 
 #
