@@ -7,10 +7,10 @@ from app.auth import service
 from app.auth.user_schema import UserRegister, UserResponse
 from app.core.database import get_conn
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login")
+@auth_router.post("/login")
 async def login(
     request: Annotated[OAuth2PasswordRequestForm, Depends()], conn=Depends(get_conn)
 ):
@@ -19,6 +19,6 @@ async def login(
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/register", response_model=UserResponse)
+@auth_router.post("/register", response_model=UserResponse)
 async def register(request: UserRegister, conn=Depends(get_conn)):
     return await service.register(request.username, request.password, conn)

@@ -4,9 +4,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 import app.core.database as db
-from app.auth import router
-from app.core.exceptions import AuthenticationFailed, DuplicateUsername
-
+from app.account.router import acc_router
+from app.auth.router import auth_router
+from app.core.exceptions import (
+    AccountNotFound,
+    AuthenticationFailed,
+    DuplicateUsername,
+    InvalidAccountType,
+)
 
 
 @asynccontextmanager
@@ -22,7 +27,8 @@ app = FastAPI(lifespan=lifespan)
 
 # Routers
 routers_prefix = "/api/v1"
-app.include_router(router.router, prefix=routers_prefix)
+app.include_router(auth_router, prefix=routers_prefix)
+app.include_router(acc_router, prefix=routers_prefix)
 
 
 # Exception handling
@@ -34,3 +40,13 @@ async def auth_failed_handler(_: Request, e: AuthenticationFailed):
 @app.exception_handler(DuplicateUsername)
 async def duplicate_username_handler(_: Request, e: DuplicateUsername):
     return JSONResponse(status_code=409, content={"detail": str(e)})
+
+
+@app.exception_handler(InvalidAccountType)
+async def invalid_account_type_handler(_: Request, e: InvalidAccountType):
+    return JSONResponse(status_code=422, content={"detail": str(e)})
+
+
+@app.exception_handler(AccountNotFound)
+async def delete_not_existing_account_handler(_: Request, e: InvalidAccountType):
+    return JSONResponse(status_code=404, content={"detail": str(e)})
