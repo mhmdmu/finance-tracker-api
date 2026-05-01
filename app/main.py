@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 import app.core.database as db
-from app.auth import auth_router
+from app.auth import router
 from app.core.exceptions import AuthenticationFailed, DuplicateUsername
 
 
@@ -22,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 
 # Routers
 routers_prefix = "/api/v1"
-app.include_router(auth_router.router, prefix=routers_prefix)
+app.include_router(router.router, prefix=routers_prefix)
 
 
 # Exception handling
