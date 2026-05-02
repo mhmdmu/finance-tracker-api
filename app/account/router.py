@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from app.account import service
 from app.account.schema import AccountCreate, AccountModify, AccountResponse
 from app.core.database import get_conn
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, verify_account_ownership
 
 acc_router = APIRouter(prefix="/accounts", tags=["account"])
 
@@ -12,10 +12,10 @@ acc_router = APIRouter(prefix="/accounts", tags=["account"])
 @acc_router.get("/{acc_id}", response_model=AccountResponse)
 async def read_account_for_current_user(
     acc_id: int,
-    curr_user_id: int = Depends(get_current_user),
     conn: Connection = Depends(get_conn),
+    _=Depends(verify_account_ownership),  # protect
 ):
-    return await service.get_account(acc_id, curr_user_id, conn)
+    return await service.get_account(acc_id, conn)
 
 
 @acc_router.get("", response_model=list[AccountResponse])
@@ -39,25 +39,25 @@ async def create_account(
     )
 
 
-@acc_router.patch("/{id}", response_model=AccountResponse)
+@acc_router.patch("/{acc_id}", response_model=AccountResponse)
 async def modify_account_info(
-    id: int,
+    acc_id: int,
     account_info: AccountModify,
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),  # protected
+    _=Depends(verify_account_ownership),  # protected
 ):
     return await service.modify_account(
-        id,
+        acc_id,
         conn,
         type=account_info.type,
         name=account_info.account_name,
     )
 
 
-@acc_router.delete("/{id}", status_code=204)
+@acc_router.delete("/{acc_id}", status_code=204)
 async def delete_account(
-    id: int,
+    acc_id: int,
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),  # protected
+    _=Depends(verify_account_ownership),  # protected
 ):
-    await service.delete_account(id, conn)
+    await service.delete_account(acc_id, conn)

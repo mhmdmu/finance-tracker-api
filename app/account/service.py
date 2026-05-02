@@ -10,8 +10,8 @@ async def get_all_accounts(user_id: int, conn: Connection):
     return [dict(acc) for acc in result]
 
 
-async def get_account(id: int, user_id: int, conn: Connection):
-    account = await repo.get_account_by_id(id, user_id, conn)
+async def get_account(id: int, conn: Connection):
+    account = await repo.get_account_by_id(id, conn)
 
     if account is None:
         raise AccountNotFound(id)

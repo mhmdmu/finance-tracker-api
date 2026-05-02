@@ -2,7 +2,7 @@ from asyncpg import Connection
 
 
 async def get_all_accounts(user_id: int, conn: Connection):
-    qurey = """
+    query = """
     SELECT
         a.*,
         COALESCE(
@@ -21,11 +21,11 @@ async def get_all_accounts(user_id: int, conn: Connection):
     GROUP BY a.id
     """
 
-    return await conn.fetch(qurey, user_id)
+    return await conn.fetch(query, user_id)
 
 
-async def get_account_by_id(id: int, user_id: int, conn: Connection):
-    qurey = """
+async def get_account_by_id(id: int, conn: Connection):
+    query = """
     SELECT
         a.*,
         COALESCE(
@@ -40,22 +40,22 @@ async def get_account_by_id(id: int, user_id: int, conn: Connection):
         ) AS balance
     FROM accounts a
     LEFT JOIN transactions t ON t.account_id = a.id
-    WHERE a.id = $1 AND a.user_id = $2
+    WHERE a.id = $1
     GROUP BY a.id
     """
 
-    return await conn.fetchrow(qurey, id, user_id)
+    return await conn.fetchrow(query, id)
 
 
 async def create_account(user_id: int, type: str, name: str, conn: Connection):
-    qurey = """
+    query = """
     INSERT INTO
     accounts(user_id, type, account_name)
     VALUES($1, $2, $3)
     RETURNING id, user_id, type, account_name
     """
 
-    return await conn.fetchrow(qurey, user_id, type, name)
+    return await conn.fetchrow(query, user_id, type, name)
 
 
 async def modify(id: int, type: str | None, name: str | None, conn):
@@ -94,3 +94,9 @@ async def delete(id: int, conn: Connection):
     """
 
     return await conn.fetchrow(query, id)
+
+
+async def check_account_exist_for_user(id: int, user_id: int, conn: Connection):
+    query = "SELECT 1 FROM accounts WHERE id = $1 AND user_id = $2"
+
+    return await conn.fetchrow(query, id, user_id)

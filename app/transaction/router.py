@@ -4,7 +4,7 @@ from asyncpg import Connection
 from fastapi import APIRouter, Depends, Query
 
 from app.core.database import get_conn
-from app.core.dependencies import get_current_user
+from app.core.dependencies import verify_account_ownership
 from app.transaction import service
 from app.transaction.schema import (
     TransactionCreate,
@@ -23,7 +23,7 @@ async def read_all_transactions(
     acc_id: int,
     filters: Annotated[TransactionFilters, Query(), Depends()],
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),  # protected
+    _=Depends(verify_account_ownership),
 ):
     return await service.get_transactions(acc_id, filters, conn)
 
@@ -35,7 +35,7 @@ async def read_transaction(
     acc_id: int,
     trans_id: int,
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),
+    _=Depends(verify_account_ownership),
 ):
     return await service.get_transaction(acc_id, trans_id, conn)
 
@@ -49,7 +49,7 @@ async def create_transaction(
     acc_id: int,
     transaction: TransactionCreate,
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),
+    _=Depends(verify_account_ownership),
 ):
     return await service.create_transaction(acc_id, transaction, conn)
 
@@ -59,6 +59,6 @@ async def delete(
     acc_id: int,
     trans_id: int,
     conn: Connection = Depends(get_conn),
-    _: int = Depends(get_current_user),
+    _=Depends(verify_account_ownership),
 ):
     await service.delete_transaction(acc_id, trans_id, conn)
