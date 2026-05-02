@@ -3,9 +3,22 @@ from asyncpg import Connection
 
 async def get_all_accounts(user_id: int, conn: Connection):
     qurey = """
-    SELECT *
-    FROM accounts
-    WHERE user_id = $1
+    SELECT
+        a.*,
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN t.type = 'income' THEN t.amount
+                    WHEN t.type = 'expense' THEN -t.amount
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS balance
+    FROM accounts a
+    LEFT JOIN transactions t ON t.account_id = a.id
+    WHERE a.user_id = $1
+    GROUP BY a.id
     """
 
     return await conn.fetch(qurey, user_id)
@@ -13,10 +26,22 @@ async def get_all_accounts(user_id: int, conn: Connection):
 
 async def get_account_by_id(id: int, user_id: int, conn: Connection):
     qurey = """
-    SELECT *
-    FROM accounts
-    WHERE id = $1
-    AND user_id = $2
+    SELECT
+        a.*,
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN t.type = 'income' THEN t.amount
+                    WHEN t.type = 'expense' THEN -t.amount
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS balance
+    FROM accounts a
+    LEFT JOIN transactions t ON t.account_id = a.id
+    WHERE a.id = $1 AND a.user_id = $2
+    GROUP BY a.id
     """
 
     return await conn.fetchrow(qurey, id, user_id)
@@ -65,6 +90,7 @@ async def delete(id: int, conn: Connection):
     query = """
     DELETE from accounts
     WHERE id = $1
+    RETURNING *
     """
 
     return await conn.fetchrow(query, id)

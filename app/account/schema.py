@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel
 
 
@@ -6,7 +8,7 @@ class AccountResponse(BaseModel):
     user_id: int
     type: str
     account_name: str
-    balance: int = 0
+    balance: Decimal = Decimal(0)
 
 
 class AccountCreate(BaseModel):
