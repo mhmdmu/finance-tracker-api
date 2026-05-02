@@ -55,7 +55,6 @@ async def create_transaction(
 
 async def delete_transaction(acc_id: int, trans_id: int, conn: Connection):
     deleted = await repo.delete_transaction(acc_id, trans_id, conn)
-    print(f"{deleted=}")
 
     if deleted is None:
         raise TransactionNotFound(trans_id)
