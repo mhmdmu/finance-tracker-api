@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -39,3 +39,4 @@ class TransactionFilters(BaseModel):
     # Pagination
     limit: int = Field(20, ge=1, le=100)
     offset: int = Field(0, ge=0)
+    sort: Literal["asc", "desc"] = "desc"

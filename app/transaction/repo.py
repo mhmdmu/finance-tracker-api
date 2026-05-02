@@ -42,8 +42,10 @@ async def get_transactions_with_filters(
     values = [acc_id]
     counter = 2
 
-    # skip pagination fields
-    filter_data = filters.model_dump(exclude_none=True, exclude={"limit", "offset"})
+    # skip pagination & sort fields
+    filter_data = filters.model_dump(
+        exclude_none=True, exclude={"limit", "offset", "sort"}
+    )
 
     for key, value in filter_data.items():
         if key == "date_from":
@@ -57,12 +59,13 @@ async def get_transactions_with_filters(
         counter += 1
 
     where_clause = " AND ".join(conditions)
+    order_by = "DESC" if filters.sort == "desc" else "ASC"
 
     query = f"""
         SELECT *, count(*) OVER() as total_count
         FROM transactions
         WHERE {where_clause}
-        ORDER BY transaction_date DESC
+        ORDER BY transaction_date {order_by}
         LIMIT ${counter} OFFSET ${counter + 1}
     """
 
