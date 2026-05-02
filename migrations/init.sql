@@ -44,3 +44,7 @@ CREATE TABLE transactions (
         REFERENCES categories(id)
         ON DELETE CASCADE
 );
+
+-- add uncategorized field, reserved with id = 1
+INSERT INTO categories (id, name, user_id) VALUES (1, 'uncategorized', NULL);
+ALTER SEQUENCE categories_id_seq RESTART WITH 2;
