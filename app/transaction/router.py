@@ -7,6 +7,7 @@ from app.core.database import get_conn
 from app.core.dependencies import verify_account_ownership
 from app.transaction import service
 from app.transaction.schema import (
+    ReportParams,
     TransactionCreate,
     TransactionFilters,
     TransactionListResponse,
@@ -62,3 +63,16 @@ async def delete(
     _=Depends(verify_account_ownership),
 ):
     await service.delete_transaction(acc_id, trans_id, conn)
+
+
+# Reports
+@transaction_router.get("/{acc_id}/reports/cashflow")
+async def summarize_by_cashflow(
+    acc_id: int,
+    params: Annotated[ReportParams, Query(), Depends()],
+    conn: Connection = Depends(get_conn),
+    _=Depends(verify_account_ownership),
+):
+    return await service.calculate_cashflow_report(
+        acc_id, params.month, params.year, conn
+    )

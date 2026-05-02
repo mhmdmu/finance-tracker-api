@@ -58,3 +58,21 @@ async def delete_transaction(acc_id: int, trans_id: int, conn: Connection):
 
     if deleted is None:
         raise TransactionNotFound(trans_id)
+
+
+async def calculate_cashflow_report(
+    acc_id: int, month: int, year: int, conn: Connection
+):
+    rows = await repo.calculate_cashflow(acc_id, month, year, conn)
+    result = {row["type"]: row["total"] for row in rows}
+    income = result.get("income", 0)
+    expense = result.get("expense", 0)
+
+    # handle missing befor return
+    return {
+        "total_income": income,
+        "total_expense": expense,
+        "net_cashflow": income - expense,
+        "month": month,
+        "year": year,
+    }

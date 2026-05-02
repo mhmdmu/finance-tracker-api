@@ -40,3 +40,8 @@ class TransactionFilters(BaseModel):
     limit: int = Field(20, ge=1, le=100)
     offset: int = Field(0, ge=0)
     sort: Literal["asc", "desc"] = "desc"
+
+
+class ReportParams(BaseModel):
+    month: int = Field(date.today().month, ge=1, le=12)
+    year: int = Field(date.today().year, ge=2000)

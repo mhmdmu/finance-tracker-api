@@ -83,3 +83,16 @@ async def delete_transaction(acc_id: int, trans_id: int, conn: Connection):
     """
 
     return await conn.fetchrow(query, trans_id, acc_id)
+
+
+async def calculate_cashflow(acc_id: int, month: int, year: int, conn: Connection):
+    query = """
+    SELECT type, sum(amount) AS total
+    FROM transactions
+    WHERE account_id = $1
+    AND EXTRACT(MONTH FROM transaction_date) = $2
+    AND EXTRACT(YEAR FROM transaction_date) = $3
+    GROUP BY type
+    """
+
+    return await conn.fetch(query, acc_id, month, year)
