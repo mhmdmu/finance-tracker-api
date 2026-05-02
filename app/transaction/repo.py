@@ -76,6 +76,7 @@ async def delete_transaction(acc_id: int, trans_id: int, conn: Connection):
     DELETE FROM transactions
     WHERE id = $1
     AND account_id = $2
+    RETURNING *
     """
 
     return await conn.fetchrow(query, trans_id, acc_id)

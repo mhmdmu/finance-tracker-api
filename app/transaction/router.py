@@ -21,7 +21,7 @@ transaction_router = APIRouter(prefix="/accounts", tags=["transactions"])
 )
 async def read_all_transactions(
     acc_id: int,
-    filters: Annotated[TransactionFilters, Query()] = Depends(),
+    filters: Annotated[TransactionFilters, Query(), Depends()],
     conn: Connection = Depends(get_conn),
     _: int = Depends(get_current_user),  # protected
 ):
