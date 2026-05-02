@@ -50,8 +50,8 @@ async def get_transactions_with_filters(
             conditions.append(f"transaction_date >= ${counter}")
         elif key == "date_to":
             conditions.append(f"transaction_date <= ${counter}")
-
-        conditions.append(f"{key} = ${counter}")
+        else:
+            conditions.append(f"{key} = ${counter}")
 
         values.append(value)
         counter += 1
