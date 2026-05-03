@@ -24,7 +24,7 @@ class TransactionListResponse(BaseModel):
 
 
 class TransactionCreate(BaseModel):
-    type: str
+    type: Literal["income", "expense"]
     amount: Decimal = Field(gt=0)  # amount > 0
     category_id: Optional[int] = 1  # default is uncateogrized
     transaction_date: date

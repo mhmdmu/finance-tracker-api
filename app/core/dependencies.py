@@ -26,7 +26,7 @@ async def verify_account_ownership(
     account = await check_account_exist_for_user(acc_id, user_id, conn)
 
     if account is None:
-        raise AccountNotFound(acc_id)
+        raise HTTPException(403)
 
 
 async def verify_category_ownership(
@@ -43,4 +43,4 @@ async def verify_category_ownership(
         raise CategoryNotFound(cat_id)
 
     if category["user_id"] != user_id:  # someone else's
-        raise CategoryNotFound(cat_id)
+        raise HTTPException(403)
