@@ -6,9 +6,11 @@ from fastapi.responses import JSONResponse
 import app.core.database as db
 from app.account.router import acc_router
 from app.auth.router import auth_router
+from app.category.router import category_router
 from app.core.exceptions import (
     AccountNotFound,
     AuthenticationFailed,
+    CategoryNotFound,
     DuplicateUsername,
     InvalidAccountType,
     InvalidTransactionType,
@@ -33,6 +35,7 @@ routers_prefix = "/api/v1"
 app.include_router(auth_router, prefix=routers_prefix)
 app.include_router(acc_router, prefix=routers_prefix)
 app.include_router(transaction_router, prefix=routers_prefix)
+app.include_router(category_router, prefix=routers_prefix)
 
 
 # Exception handling
@@ -64,3 +67,8 @@ async def delete_not_existing_transaction_handler(_: Request, e: TransactionNotF
 @app.exception_handler(InvalidTransactionType)
 async def invalid_transaction_type_handler(_: Request, e: InvalidTransactionType):
     return JSONResponse(status_code=422, content={"detail": str(e)})
+
+
+@app.exception_handler(CategoryNotFound)
+async def on_existing_category_handler(_: Request, e: CategoryNotFound):
+    return JSONResponse(status_code=404, content={"detail": str(e)})

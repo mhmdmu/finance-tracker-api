@@ -29,7 +29,7 @@ CREATE TABLE categories (
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     account_id INT NOT NULL,
-    category_id INT NOT NULL,
+    category_id INT NOT NULL DEFAULT 1, -- uncategorized as default
     type transaction_type NOT NULL,
     amount DECIMAL(12,2) NOT NULL CHECK (amount > 0),
     transaction_date DATE NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE transactions (
     CONSTRAINT fk_category
         FOREIGN KEY (category_id)
         REFERENCES categories(id)
-        ON DELETE CASCADE
+        ON DELETE SET DEFAULT
 );
 
 -- add uncategorized field, reserved with id = 1

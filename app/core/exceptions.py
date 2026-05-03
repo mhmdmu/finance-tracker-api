@@ -26,3 +26,8 @@ class InvalidTransactionType(Exception):
 class TransactionNotFound(Exception):
     def __init__(self, id):
         super().__init__(f"Transaction not found - id: {id} not exist")
+
+
+class CategoryNotFound(Exception):
+    def __init__(self, id):
+        super().__init__(f"Category not found - id: {id} not exist")

@@ -1,7 +1,9 @@
 from asyncpg import Connection, ForeignKeyViolationError, InvalidTextRepresentationError
 
+from app.category.repo import get_by_id
 from app.core.exceptions import (
     AccountNotFound,
+    CategoryNotFound,
     InvalidTransactionType,
     TransactionNotFound,
 )
@@ -37,9 +39,18 @@ async def get_transaction(acc_id: int, trans_id: int, conn: Connection):
 
 async def create_transaction(
     acc_id: int,
+    user_id: int,
     transaction: TransactionCreate,
     conn: Connection,
 ):
+    category = await get_by_id(transaction.category_id or 1, conn)
+
+    if category is None:
+        raise CategoryNotFound(transaction.category_id)
+
+    if category["user_id"] is not None and category["user_id"] != user_id:
+        raise CategoryNotFound(transaction.category_id)
+
     try:
         created = await repo.create_transaction(acc_id, transaction, conn)
 

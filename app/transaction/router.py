@@ -4,7 +4,7 @@ from asyncpg import Connection
 from fastapi import APIRouter, Depends, Query
 
 from app.core.database import get_conn
-from app.core.dependencies import verify_account_ownership
+from app.core.dependencies import get_current_user, verify_account_ownership
 from app.transaction import service
 from app.transaction.schema import (
     ReportParams,
@@ -49,10 +49,11 @@ async def read_transaction(
 async def create_transaction(
     acc_id: int,
     transaction: TransactionCreate,
+    user_id: int = Depends(get_current_user),
     conn: Connection = Depends(get_conn),
     _=Depends(verify_account_ownership),
 ):
-    return await service.create_transaction(acc_id, transaction, conn)
+    return await service.create_transaction(acc_id, user_id, transaction, conn)
 
 
 @transaction_router.delete("/{acc_id}/transactions/{trans_id}", status_code=204)
