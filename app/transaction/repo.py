@@ -96,3 +96,20 @@ async def calculate_cashflow(acc_id: int, month: int, year: int, conn: Connectio
     """
 
     return await conn.fetch(query, acc_id, month, year)
+
+
+async def calculate_spending_by_category(
+    acc_id: int, month: int, year: int, conn: Connection
+):
+    query = """
+    SELECT c.name, sum(amount) AS total
+    FROM transactions t
+    JOIN categories c ON c.id = t.category_id
+    WHERE account_id = $1
+    AND EXTRACT(MONTH FROM transaction_date) = $2
+    AND EXTRACT(YEAR FROM transaction_date) = $3
+    AND type = 'expense'
+    GROUP BY c.id, c.name
+    """
+
+    return await conn.fetch(query, acc_id, month, year)

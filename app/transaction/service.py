@@ -87,3 +87,19 @@ async def calculate_cashflow_report(
         "month": month,
         "year": year,
     }
+
+
+async def calculate_spending_report(
+    acc_id: int, month: int, year: int, conn: Connection
+):
+    rows = await repo.calculate_spending_by_category(acc_id, month, year, conn)
+
+    items = [
+        {
+            "category_name": row["name"],
+            "total_expense": row["total"],
+        }
+        for row in rows
+    ]
+
+    return {"month": month, "year": year, "items": items}

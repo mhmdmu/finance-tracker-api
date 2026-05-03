@@ -77,3 +77,15 @@ async def summarize_by_cashflow(
     return await service.calculate_cashflow_report(
         acc_id, params.month, params.year, conn
     )
+
+
+@transaction_router.get("/{acc_id}/reports/spendings")
+async def summarize_by_categories(
+    acc_id: int,
+    params: Annotated[ReportParams, Query(), Depends()],
+    conn: Connection = Depends(get_conn),
+    _=Depends(verify_account_ownership),
+):
+    return await service.calculate_spending_report(
+        acc_id, params.month, params.year, conn
+    )
