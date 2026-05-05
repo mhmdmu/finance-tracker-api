@@ -1,192 +1,148 @@
 # Personal Finance Tracker API
 
-A simple backend service for tracking personal finances across multiple accounts.
+A backend API for tracking personal finances — built with FastAPI and PostgreSQL.
 
-## Overview
+## What it does
 
-This project allows users to:
+The idea is straightforward: you have accounts (cash, bank, credit card), and you record transactions against them. You can categorize those transactions, filter through history, and pull monthly reports to see where your money is going.
 
-- Manage multiple financial accounts (cash, bank, credit)
-- Record income and expenses
-- Categorize transactions
-- View transaction history with filters
-- Get basic monthly summaries
+Specifically, the API supports:
 
-## Features
+- Multiple accounts per user
+- Income and expense tracking
+- Custom categories (on top of the built-in defaults)
+- Filtered, paginated transaction history
+- Monthly cashflow and spending-by-category reports
 
-* User authentication (register & login)
-* Multiple accounts per user
-* Transaction tracking (income & expense)
-* Categories (default + custom)
-* Monthly reports:
-  * Total income vs expense
-  * Spending by category
-* Pagination on list endpoints
+## Tech stack
 
-## Tech Stack
+- **FastAPI** — async Python web framework
+- **PostgreSQL** — relational database (accessed via asyncpg)
+- **JWT** — for authentication (python-jose)
 
-- **Backend**: FastAPI
-- **Database**: PostgreSQL
+## Getting started
+
+### Prerequisites
+
+- Python 3.11+
+- Docker (used to run Postgres locally)
+- [just](https://github.com/casey/just) — a command runner (optional, but recommended)
+
+### 1. Clone and install dependencies
+
+```bash
+git clone <repo-url>
+cd personal-finance-api
+pip install -r requirements.txt
+```
+
+### 2. Set up environment variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/finance_db
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+EXPIRE_MINUTES=30
+```
+
+- `DATABASE_URL` — async PostgreSQL connection string (required)
+- `SECRET_KEY` — used to sign JWT tokens; do not hardcode this in production
+- `EXPIRE_MINUTES` — how long issued tokens stay valid
+
+### 3. Start the database
+
+If you have `just` installed, this will spin up a Postgres container (or start an existing one):
+
+```bash
+just db
+```
+
+To wipe and re-initialize the database:
+
+```bash
+just db-reset
+```
+
+If you prefer to manage Postgres yourself, apply the schema from `migrations/init.sql` manually.
+
+### 4. Run the server
+
+```bash
+just run
+```
+
+Or directly:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`. Interactive docs are at `/docs`.
 
 ---
 
-## Base URL
+## API reference
 
-```
-/api/v1
-```
+All routes are prefixed with `/api/v1`. Protected routes require an `Authorization: Bearer <token>` header.
 
----
+### Auth
 
-## Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Create a new user account |
+| POST | `/auth/login` | Authenticate and receive a bearer token |
 
-### `POST /auth/register`
+Login response:
 
-Create a new user.
-
-### `POST /auth/login`
-
-Returns a bearer token.
-
-```
+```json
 {
   "access_token": "...",
   "token_type": "bearer"
 }
 ```
 
----
+### Accounts
 
-## Accounts
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/accounts` | List all accounts for the authenticated user |
+| GET | `/accounts/{acc_id}` | Get a single account |
+| POST | `/accounts` | Create a new account |
+| PATCH | `/accounts/{acc_id}` | Update account name or type |
+| DELETE | `/accounts/{acc_id}` | Delete an account |
 
-### `GET /accounts`
+### Transactions
 
-List all user accounts.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/accounts/{acc_id}/transactions` | List transactions (supports pagination and filters) |
+| GET | `/accounts/{acc_id}/transactions/{trans_id}` | Get a single transaction |
+| POST | `/accounts/{acc_id}/transactions` | Record a new transaction |
+| DELETE | `/accounts/{acc_id}/transactions/{trans_id}` | Delete a transaction |
 
-### `GET /accounts/{acc_id}`
+### Reports
 
-Get a single account.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/accounts/{acc_id}/reports/cashflow` | Monthly income vs. expenses |
+| GET | `/accounts/{acc_id}/reports/spendings` | Spending broken down by category |
 
-### `POST /accounts`
+Cashflow accepts `?month=MM&year=YYYY` query parameters.
 
-Create account.
+### Categories
 
-### `PATCH /accounts/{acc_id}`
-
-Update account (name/type).
-
-### `DELETE /accounts/{acc_id}`
-
-Delete account.
-
----
-
-## Transactions
-
-### `GET /accounts/{acc_id}/transactions`
-
-List transactions (supports pagination and filters via query params).
-
-### `GET /accounts/{acc_id}/transactions/{trans_id}`
-
-Get a specific transaction.
-
-### `POST /accounts/{acc_id}/transactions`
-
-Create a transaction.
-
-### `DELETE /accounts/{acc_id}/transactions/{trans_id}`
-
-Delete transaction.
-
----
-
-## Reports
-
-### `GET /accounts/{acc_id}/reports/cashflow`
-
-Monthly income vs expenses.
-
-Query:
-
-```
-?month=MM&year=YYYY
-```
-
-### `GET /accounts/{acc_id}/reports/spendings`
-
-Spending grouped by category.
-
----
-
-## Categories
-
-### `GET /categories`
-
-List user categories.
-
-### `POST /categories`
-
-Create category.
-
-```
-{ "name": "Food" }
-```
-
-### `PATCH /categories/{cat_id}`
-
-Rename category.
-
-### `DELETE /categories/{cat_id}`
-
-Delete category.
-
----
-
-## Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/finance_db
-SECRET_KEY=your_secret_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-```
-
-### Notes
-
-* `DATABASE_URL` → Async PostgreSQL connection (required)
-* `SECRET_KEY` → used to sign JWT tokens (don’t hardcode this in production)
-* `ACCESS_TOKEN_EXPIRE_MINUTES` → token lifetime
-
----
-## Running the Project
-
-### Install dependencies
-
-```
-pip install -r requirements.txt
-```
-
-### Setup database
-
-Run:
-
-```
-migrations/init.sql
-```
-
-### Start server
-
-```
-uvicorn app.main:app --reload
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/categories` | List all categories (defaults + custom) |
+| POST | `/categories` | Create a custom category |
+| PATCH | `/categories/{cat_id}` | Rename a category |
+| DELETE | `/categories/{cat_id}` | Delete a category |
 
 ---
 
 ## Notes
 
-* All protected routes require `Authorization: Bearer <token>`
-* Ownership is enforced (accounts, transactions, categories)
-* Errors return meaningful HTTP status codes (401, 404, 422, etc.)
+- Each user only sees their own accounts, transactions, and categories — ownership is enforced at the API level.
+- Error responses use standard HTTP status codes: `401` for unauthorized, `404` for not found, `422` for validation errors.
